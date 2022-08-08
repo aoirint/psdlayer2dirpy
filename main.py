@@ -71,7 +71,8 @@ def main(
     assert output_path in save_path.parents, f'Unsafe layer name used. Unsafe destination: {save_path}'
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
-    layer_path.layer.composite(viewport=(0, 0, 0, 0)).save(save_path)
+    layer_path.layer.visible = True
+    layer_path.layer.composite(viewport=psd.bbox).save(save_path)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
