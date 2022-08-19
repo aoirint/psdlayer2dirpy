@@ -19,7 +19,7 @@ docker pull aoirint/psdlayer2dirpy:20220819.1
 ### PyPI
 
 ```shell
-psdlayer2dir psd_file -o output/
+psdlayer2dir file.psd -o output/
 ```
 
 
