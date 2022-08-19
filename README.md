@@ -1,5 +1,8 @@
 # psdlayer2dirpy
 
+- PyPI: <https://pypi.org/project/aoirint-psdlayer2dirpy/>
+- Docker Hub: <https://hub.docker.com/r/aoirint/psdlayer2dirpy>
+
 ## Installation
 
 ### PyPI
@@ -32,4 +35,4 @@ docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.1 file.psd -o ou
 
 ## Dependencies
 
-- psd-tools: [Docs](https://psd-tools.readthedocs.io/en/latest/) [GitHub](https://github.com/psd-tools/psd-tools)
+- psd-tools: [Docs](https://psd-tools.readthedocs.io/en/latest/) [GitHub](https://github.com/psd-tools/psd-tools) [PyPI](https://pypi.org/project/psd-tools/)
