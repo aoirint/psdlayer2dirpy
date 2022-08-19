@@ -15,7 +15,7 @@ pip3 install aoirint_psdlayer2dirpy
 ### Docker
 
 ```shell
-docker pull aoirint/psdlayer2dirpy:20220819.2
+docker pull aoirint/psdlayer2dirpy:20220819.3
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ psdlayer2dir file.psd -o output/
 ### Docker
 
 ```shell
-docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.2 file.psd -o output/
+docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.3 file.psd -o output/
 ```
 
 ## Dependencies
