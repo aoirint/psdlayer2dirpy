@@ -51,7 +51,7 @@ def replace_unsafe_chars(layer_name: str) -> str:
 
   return layer_name
 
-def main(
+def psdlayer2dir(
   psd_path: Path,
   output_path: Path,
 ):
@@ -74,7 +74,7 @@ def main(
     layer_path.layer.visible = True
     layer_path.layer.composite(viewport=psd.bbox).save(save_path)
 
-if __name__ == '__main__':
+def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('psd_file', type=str)
   parser.add_argument('-o', '--output', type=str, default='./')
@@ -83,7 +83,10 @@ if __name__ == '__main__':
   psd_path = Path(args.psd_file)
   output_path = Path(args.output)
 
-  main(
+  psdlayer2dir(
     psd_path=psd_path,
     output_path=output_path,
   )
+
+if __name__ == '__main__':
+  main()
