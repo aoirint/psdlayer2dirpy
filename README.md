@@ -27,5 +27,5 @@ psdlayer2dir file.psd -o output/
 ### Docker
 
 ```shell
-docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.1 psdlayer2dir file.psd -o output/
+docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.1 file.psd -o output/
 ```
