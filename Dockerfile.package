@@ -17,6 +17,11 @@ RUN <<EOF
     useradd -m -o -u 1000 user
 EOF
 
+ADD ./requirements.txt /tmp/requirements.txt
+RUN <<EOF
+    gosu user pip3 install -r /tmp/requirements.txt
+EOF
+
 ARG PSDLAYER2DIRPY_VERSION
 RUN <<EOF
     gosu user pip3 install "aoirint_psdlayer2dirpy==${PSDLAYER2DIRPY_VERSION}"
