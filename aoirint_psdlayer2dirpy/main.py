@@ -55,11 +55,13 @@ def replace_psdtool_chars(layer_name: str) -> str:
   """
   # ラジオボタン化
   if layer_name.startswith('*'):
-    layer_name = '(切替) ' + layer_name[1:]
+    # layer_name = '(切替) ' + layer_name[1:]
+    layer_name = layer_name[1:]
 
   # 強制表示化
   if layer_name.startswith('!'):
-    layer_name = '(強制) ' + layer_name[1:]
+    # layer_name = '(強制) ' + layer_name[1:]
+    layer_name = layer_name[1:]
 
   # 反転レイヤー指定
   # :flipx:flipy のような複数指定を許容
@@ -68,14 +70,14 @@ def replace_psdtool_chars(layer_name: str) -> str:
 
     if match:
       prefix = match.group(1)
-      xy = match.group(2)
+      # xy = match.group(2)
       suffix = ''
-      if xy == 'xy':
-        suffix += ' (上下左右反転)'
-      if xy == 'x':
-        suffix += ' (左右反転)'
-      if xy == 'y':
-        suffix += ' (上下反転)'
+      # if xy == 'xy':
+      #   suffix += ' (上下左右反転)'
+      # if xy == 'x':
+      #   suffix += ' (左右反転)'
+      # if xy == 'y':
+      #   suffix += ' (上下反転)'
 
       layer_name = f'{prefix}{suffix}'
     else:
