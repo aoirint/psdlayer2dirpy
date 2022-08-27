@@ -13,6 +13,7 @@ class LayerPath:
 def _walk_layer_paths(layer_path: LayerPath) -> List[LayerPath]:
   layer_paths = []
 
+  layer_path.layer.visible = True
   if layer_path.layer.is_group():
     for child_layer in layer_path.layer:
       layer_paths.extend(
