@@ -1,0 +1,183 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - created
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.10.10'
+  IMAGE_NAME: aoirint/psdlayer2dirpy
+  IMAGE_TAG: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || 'latest' }}
+  VERSION: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || '0.0.0' }}
+
+jobs:
+  build-python-package:
+    if: github.event.release.tag_name != ''
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Poetry
+        shell: bash
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'poetry'
+
+      - name: Replace Version
+        shell: bash
+        run: |
+          sed -i "s/__VERSION__ = \"0.0.0\"/__VERSION__ = \"${{ env.VERSION }}\"/" aoirint_psdlayer2dirpy/__init__.py
+          sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
+
+      - name: Install Dependencies
+        shell: bash
+        run: poetry install
+
+      - name: Build and publish Package
+        shell: bash
+        run: poetry publish --build --username "__token__" --password "${{ secrets.PYPI_API_TOKEN }}"
+
+  build-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Replace Version
+        shell: bash
+        run: |
+          sed -i "s/__VERSION__ = \"0.0.0\"/__VERSION__ = \"${{ env.VERSION }}\"/" aoirint_psdlayer2dirpy/__init__.py
+          sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
+
+      - name: Build and Deploy Docker image
+        uses: docker/build-push-action@v3
+        env:
+          IMAGE_NAME_AND_TAG: ${{ format('{0}:{1}', env.IMAGE_NAME, env.IMAGE_TAG) }}
+        with:
+          context: .
+          builder: ${{ steps.buildx.outputs.name }}
+          file: ./Dockerfile
+          build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+          push: true
+          tags: ${{ env.IMAGE_NAME_AND_TAG }}
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME_AND_TAG }}-buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME_AND_TAG }}-buildcache,mode=max
+
+  build-binary:
+    if: github.event.release.tag_name != ''
+
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          -
+            os: 'ubuntu-20.04'
+            asset_name_prefix: aoirint_psdlayer2dirpy-linux-amd64
+            sed: 'sed'
+          -
+            os: 'windows-2019'
+            asset_name_prefix: aoirint_psdlayer2dirpy-windows-amd64
+            sed: 'sed'
+          -
+            os: 'macos-11'
+            asset_name_prefix: aoirint_psdlayer2dirpy-macos-amd64
+            sed: 'gsed'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install gsed for macOS
+        if: startsWith(matrix.os, 'macos-')
+        shell: bash
+        run: |
+          brew install gnu-sed
+
+      - name: Install Poetry
+        shell: bash
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'poetry'
+
+      - name: Replace Version
+        shell: bash
+        run: |
+          ${{ matrix.sed }} -i "s/__VERSION__ = \"0.0.0\"/__VERSION__ = \"${{ env.VERSION }}\"/" aoirint_psdlayer2dirpy/__init__.py
+          ${{ matrix.sed }} -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
+
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Build Binary
+        shell: bash
+        run: poetry run pyinstaller --name "psdlayer2dir" "main.py"
+
+      - name: Set asset-basename
+        id: asset-basename
+        shell: bash
+        run: echo "ASSET_BASENAME=${{ matrix.asset_name_prefix }}-${{ env.VERSION }}" >> $GITHUB_OUTPUT
+
+      - name: Create artifact directory
+        shell: bash
+        run: |
+          mkdir -p "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}"
+          cp -r dist/psdlayer2dir/* "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
+
+      - name: Compress tar.gz
+        if: startsWith(matrix.os, 'ubuntu-')
+        shell: bash
+        run: |
+          cd artifact
+          tar cfzv "${{ steps.asset-basename.outputs.ASSET_BASENAME }}.tar.gz" "${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
+
+      - name: Compress zip
+        if: startsWith(matrix.os, 'windows-') || startsWith(matrix.os, 'macos-')
+        shell: bash
+        run: |
+          cd artifact
+          7z a "${{ steps.asset-basename.outputs.ASSET_BASENAME }}.zip" "${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
+
+      - name: Upload tar.gz to Release
+        if: startsWith(matrix.os, 'ubuntu-')
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          target_commitish: ${{ github.sha }}
+          files: artifact/*.tar.gz
+
+      - name: Upload zip to Release
+        if: startsWith(matrix.os, 'windows-') || startsWith(matrix.os, 'macos-')
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          target_commitish: ${{ github.sha }}
+          files: artifact/*.zip
