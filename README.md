@@ -53,7 +53,6 @@ poetry run pysen run lint format
 poetry add {package_name}
 poetry add -G dev {package_name}
 
-
 # Dump `requirements*.txt`
 poetry export --without-hashes -o requirements.txt
 poetry export --without-hashes --with dev -o requirements-dev.txt
