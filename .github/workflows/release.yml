@@ -28,24 +28,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Dependencies
-        run: |
-            pip3 install -r requirements.txt
-            pip3 install wheel
+      - name: Install Poetry
+        run: pip3 install poetry
 
       - name: Replace version
         run: |
           sed -i "s/__VERSION__ = '0.0.0'/__VERSION__ = '${{ env.VERSION }}'/" aoirint_psdlayer2dirpy/__init__.py
           sed -i "s/version = "0.0.0"/version = "${{ env.VERSION }}"/" pyproject.toml
 
-      - name: Build Package
-        run: python3 setup.py sdist bdist_wheel
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Build and publish Package
+        run: poetry publish --build --username "__token__" --password "${{ secrets.PYPI_API_TOKEN }}"
 
   docker-push:
     runs-on: ubuntu-latest
