@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -56,7 +57,51 @@ def walk_layer_paths(psd: PSDImage) -> List[LayerPath]:
     return layer_paths
 
 
+def replace_psdtool_chars(layer_name: str) -> str:
+    """
+    PSDToolの独自拡張機能の制御記号を置換する
+
+    ファイルシステム用の置換のみだと手修正する数が多くなるための暫定処理
+
+    https://oov.github.io/psdtool/manual.html#original-feature-asterisk
+    """
+    # ラジオボタン化
+    if layer_name.startswith("*"):
+        # layer_name = '(切替) ' + layer_name[1:]
+        layer_name = layer_name[1:]
+
+    # 強制表示化
+    if layer_name.startswith("!"):
+        # layer_name = '(強制) ' + layer_name[1:]
+        layer_name = layer_name[1:]
+
+    # 反転レイヤー指定
+    # :flipx:flipy のような複数指定を許容
+    while True:
+        match = re.search(r"^(.+):flip(xy|x|y)$", layer_name)  # 後ろから
+
+        if match:
+            prefix = match.group(1)
+            # xy = match.group(2)
+            suffix = ""
+            # if xy == 'xy':
+            #   suffix += ' (上下左右反転)'
+            # if xy == 'x':
+            #   suffix += ' (左右反転)'
+            # if xy == 'y':
+            #   suffix += ' (上下反転)'
+
+            layer_name = f"{prefix}{suffix}"
+        else:
+            break
+
+    return layer_name
+
+
 def replace_unsafe_chars(layer_name: str) -> str:
+    """
+    ファイルシステムの都合で使えない文字を置換する
+    """
     unsafe_chars = '<>:"/\\|!?*.'
 
     for char in unsafe_chars:
@@ -80,7 +125,9 @@ def psdlayer2dir(
     for layer_path in layer_path_list:
         slashed_layer_name = "/".join(layer_path.path)
 
-        filtered_path = list(map(replace_unsafe_chars, layer_path.path))
+        filtered_path = list(
+            map(replace_unsafe_chars, map(replace_psdtool_chars, layer_path.path))
+        )
         filtered_path[-1] += ".png"
 
         relative_save_path = Path(*filtered_path)
