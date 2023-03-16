@@ -6,6 +6,7 @@ on:
       - created
 
 env:
+  PYTHON_VERSION: '3.11.2'
   IMAGE_NAME: aoirint/psdlayer2dirpy
   IMAGE_TAG: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || 'latest' }}
   VERSION: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || '0.0.0' }}
@@ -20,7 +21,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.x
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Dependencies
         run: |
@@ -66,6 +67,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           file: ./Dockerfile.package
           build-args: |
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             PSDLAYER2DIRPY_VERSION=${{ env.VERSION }}
           push: true
           tags: ${{ env.IMAGE_NAME_AND_TAG }}
