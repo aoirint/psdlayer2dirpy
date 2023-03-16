@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
@@ -10,6 +11,7 @@ from psd_tools import PSDImage
 from psd_tools.api.layers import Layer
 
 from . import __VERSION__ as VERSION
+from .util.iterable_utility import flatten, flatten_with_parent
 from .util.logging_utility import setup_logger
 
 logger = logging.Logger("psdlayer2dir")
@@ -19,6 +21,12 @@ logger = logging.Logger("psdlayer2dir")
 class PsdLeafLayer:
     layer: Layer
     path: List[str]
+
+    original_layer_name: str
+    """ オリジナルのレイヤー名 """
+
+    save_layer_name: str
+    """ ファイルに保存するときのレイヤー名 """
 
 
 def _find_all_leaf_layers(
@@ -109,6 +117,100 @@ def replace_unsafe_chars(layer_name: str) -> str:
     return layer_name
 
 
+class PsdParser(ABC):
+    @abstractmethod
+    def count_leaf_layers(self) -> int:
+        ...
+
+    @abstractmethod
+    def save_layers(self, flipx: bool, flipy: bool,) -> None:
+        ...
+
+
+class PsdParserPsdTool(PsdParser):
+    psd: PSDImage
+    bbox: tuple[int, int, int, int]
+    root_layers: list[Layer]
+
+    flatten_layers: list[Layer]
+    flatten_leaf_layers: list[Layer]
+
+    noflip_flatten_leaf_layers: list[Layer]
+    flipx_flatten_leaf_layers: list[Layer]
+    flipy_flatten_leaf_layers: list[Layer]
+    flipxy_flatten_leaf_layers: list[Layer]
+
+    def __init__(
+        self,
+        psd: PSDImage,
+    ):
+        self.psd = psd
+        self.bbox = psd.bbox
+        self.root_layers = list(psd)
+
+        def _find_all_layer(layer: Layer, flipx: bool, flipy: bool):
+            child_layers = list(layer)
+            child_layer_name_list = [child_layer.name for child_layer in child_layers]
+
+            for child_layer in child_layers:
+                child_layer_name = child_layer.name
+
+                if child_layer_name.endswith(':flipxy'):
+                    if flipx and flipy:
+                        yield child_layer
+                elif child_layer_name.endswith(':flipx'):
+                    if flipx:
+                        yield child_layer
+                elif child_layer_name.endswith(':flipy'):
+                    if flipy:
+                        yield child_layer
+
+        self.flatten_layers = list(flatten_with_parent(psd))
+        self.flatten_leaf_layers = list(flatten(psd))
+
+        noflip_flatten_leaf_layers: list[Layer] = []
+        flipx_flatten_leaf_layers: list[Layer] = []
+        flipy_flatten_leaf_layers: list[Layer] = []
+        flipxy_flatten_leaf_layers: list[Layer] = []
+
+        def any_parent_layer_name_endswith(layer: Layer, word: str) -> bool:
+            _parent = layer.parent
+            while _parent is not None:
+                _parent_layer_name = _parent.name
+                if _parent_layer_name.endswith(word):
+                    return True
+            return False
+
+        for leaf_layer in self.flatten_leaf_layers:
+            layer_name: str = leaf_layer.name
+
+            is_flipx = layer_name.endswith(':flipx')
+            any_parent_layer_flipx = any_parent_layer_name_endswith(leaf_layer, ':flipx')
+            if is_flipx and any_parent_layer_flipx:
+                pass
+
+            is_flipy = layer_name.endswith(':flipy')
+            any_parent_layer_flipy = any_parent_layer_name_endswith(leaf_layer, ':flipy')
+            if is_flipy and any_parent_layer_flipy:
+                pass
+
+            is_flipxy = layer_name.endswith(':flipxy')
+            any_parent_layer_flipxy = any_parent_layer_name_endswith(leaf_layer, ':flipxy')
+            if is_flipxy and any_parent_layer_flipxy:
+                pass
+
+
+        self.layer_dict = layer_dict
+
+
+    def count_leaf_layers(self) -> int:
+        return len(self.flatten_leaf_layers)
+
+
+    def save_layers(self, flipx: bool, flipy: bool,) -> None:
+        pass
+
+
 def psdlayer2dir(
     psd_path: Path,
     output_dir: Path,
@@ -119,8 +221,12 @@ def psdlayer2dir(
         raise Exception(f"Already exists: {output_dir}")
 
     psd = PSDImage.open(psd_path)
+    psd_parser = PsdParserPsdTool(psd=psd)
+
+    layer_count = psd_parser.count_leaf_layers(psd)
+    logger.info(f"{layer_count} layers found")
+
     leaf_layer_list = find_all_leaf_layers(psd)
-    logger.info(f"{len(leaf_layer_list)} layers found")
 
     for leaf_layer in leaf_layer_list:
         slashed_layer_name = "/".join(leaf_layer.path)
