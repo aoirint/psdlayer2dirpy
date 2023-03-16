@@ -112,6 +112,8 @@ def replace_unsafe_chars(layer_name: str) -> str:
 def psdlayer2dir(
     psd_path: Path,
     output_dir: Path,
+    flipx: bool,
+    flipy: bool,
 ) -> None:
     if output_dir.exists():
         raise Exception(f"Already exists: {output_dir}")
@@ -145,6 +147,12 @@ def psdlayer2dir(
             pil_image is not Image
         ), f"Runtime type of composited layer image is not PIL.Image. This is unexpected."
 
+        if flipx:
+            pil_image = pil_image.mirror()
+
+        if flipy:
+            pil_image = pil_image.flip()
+
         pil_image.save(save_path)
 
 
@@ -159,6 +167,18 @@ def main() -> None:
         "--output_dir",
         type=Path,
         default=os.environ.get("PSDLAYER2DIR_OUTPUT_DIR", "./"),
+    )
+    parser.add_argument(
+        "--flipx",
+        type="store_true",
+    )
+    parser.add_argument(
+        "--flipy",
+        type="store_true",
+    )
+    parser.add_argument(
+        "--flipxy",
+        type="store_true",
     )
     parser.add_argument(
         "--log_level",
@@ -184,8 +204,13 @@ def main() -> None:
 
     psd_path: Path = args.psd_file
     output_dir: Path = args.output_dir
+    flipx: bool = args.flipx
+    flipy: bool = args.flipy
+    flipxy: bool = args.flipxy
 
     psdlayer2dir(
         psd_path=psd_path,
         output_dir=output_dir,
+        flipx=flipx or flipxy,
+        flipy=flipy or flipxy,
     )
