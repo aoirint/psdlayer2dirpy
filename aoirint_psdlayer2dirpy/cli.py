@@ -77,16 +77,16 @@ def replace_psdtool_chars(layer_name: str) -> str:
 
     # 反転レイヤー指定
     if layer_name.endswith(":flipx"):
-        # layer_name = '(左右反転) ' + layer_name[1:]
+        # layer_name = '(左右反転) ' + layer_name[:-6]
         layer_name = layer_name[:-6]
 
     if layer_name.endswith(":flipy"):
-        # layer_name = '(上下反転) ' + layer_name[1:]
+        # layer_name = '(上下反転) ' + layer_name[:-6]
         layer_name = layer_name[:-6]
 
     if layer_name.endswith(":flipxy"):
-        # layer_name = '(上下左右反転) ' + layer_name[1:]
-        layer_name = layer_name[:-6]
+        # layer_name = '(上下左右反転) ' + layer_name[:-7]
+        layer_name = layer_name[:-7]
 
     return layer_name
 
