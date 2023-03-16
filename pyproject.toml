@@ -27,7 +27,7 @@ packages = [{include = "aoirint_psdlayer2dirpy"}]
 psdlayer2dir = "aoirint_psdlayer2dirpy.main:main"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10,<3.12"
 psd-tools = "^1.9.24"
 
 [tool.poetry.group.dev.dependencies]
@@ -36,6 +36,7 @@ mypy = "~0.900,<1"
 black = "^23.1.0"
 flake8 = "^6.0.0"
 isort = "^5.12.0"
+pyinstaller = "^5.9.0"
 
 [build-system]
 requires = ["poetry-core"]
