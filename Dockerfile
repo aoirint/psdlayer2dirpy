@@ -7,26 +7,25 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH=/home/user/.local/bin:$PATH
 
 RUN <<EOF
+    set -eu
+
     apt-get update
     apt-get install -y \
         gosu
     apt-get clean
     rm -rf /var/lib/apt/lists/*
-EOF
 
-RUN <<EOF
-    useradd -m -o -u 1000 user
+    groupadd -o -g 1000 user
+    useradd -m -o -u 1000 -g user user
 EOF
 
 ADD ./requirements.txt /tmp/requirements.txt
 RUN <<EOF
-    gosu user pip3 install -r /tmp/requirements.txt
+    set -eu
+
+    gosu user pip3 install --no-cache-dir -r /tmp/requirements.txt
 EOF
 
-ARG PSDLAYER2DIRPY_VERSION
-RUN <<EOF
-    gosu user pip3 install "aoirint_psdlayer2dirpy==${PSDLAYER2DIRPY_VERSION}"
-EOF
+ADD ./aoirint_psdlayer2dirpy /opt/aoirint_psdlayer2dirpy
 
-WORKDIR /work
-ENTRYPOINT [ "gosu", "user", "psdlayer2dir" ]
+ENTRYPOINT [ "gosu", "user", "python3", "/opt/aoirint_psdlayer2dirpy/main.py" ]

@@ -60,3 +60,11 @@ To dump `requirements*.txt`,
 poetry export --without-hashes -o requirements.txt
 poetry export --without-hashes --with dev -o requirements-dev.txt
 ```
+
+### Docker
+
+```shell
+docker build -t psdlayer2dirpy .
+
+docker run --rm -v "./work:/work" -w /work psdlayer2dirpy image.psd -o output
+```
