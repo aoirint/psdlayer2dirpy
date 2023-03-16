@@ -63,6 +63,10 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Replace version
+        run: |
+          sed -i "s/__VERSION__ = '0.0.0'/__VERSION__ = '${{ env.VERSION }}'/" aoirint_psdlayer2dirpy/__init__.py
+
       - name: Build and Deploy Docker image
         uses: docker/build-push-action@v3
         env:
