@@ -170,15 +170,15 @@ def main() -> None:
     )
     parser.add_argument(
         "--flipx",
-        type="store_true",
+        action="store_true",
     )
     parser.add_argument(
         "--flipy",
-        type="store_true",
+        action="store_true",
     )
     parser.add_argument(
         "--flipxy",
-        type="store_true",
+        action="store_true",
     )
     parser.add_argument(
         "--log_level",
