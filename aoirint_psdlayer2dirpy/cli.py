@@ -11,7 +11,7 @@ from psd_tools.api.layers import Layer
 from . import __VERSION__ as VERSION
 from .util.logging_utility import setup_logger
 
-logger = logging.Logger()
+logger = logging.Logger('psdlayer2dir')
 
 
 @dataclass
