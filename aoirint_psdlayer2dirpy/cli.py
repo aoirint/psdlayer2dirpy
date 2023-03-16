@@ -91,7 +91,7 @@ def psdlayer2dir(
         ), f"Unsafe layer name used. Unsafe destination: {save_path}"
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f'Saving layer "{slashed_layer_name}" -> {save_path}')
+        logger.info(f'Saving layer "{slashed_layer_name}" -> {relative_save_path}')
 
         layer_path.layer.visible = True
         layer_path.layer.composite(viewport=psd.bbox).save(save_path)
