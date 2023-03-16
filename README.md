@@ -39,10 +39,24 @@ docker run --rm -v "$PWD:/work" aoirint/psdlayer2dirpy:20220819.3 file.psd -o ou
 
 ## Development
 
-### Generate requirements.txt
+This repository uses [Poetry](https://github.com/python-poetry/poetry).
+
+### pyenv + Poetry
 
 ```shell
-pip3 install pip-tools
+env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.11.2
+pyenv local 3.11.2
 
-pip-compile requirements.in
+poetry env remove python
+poetry env use python
+poetry install
+```
+
+### Library management
+
+To dump `requirements*.txt`,
+
+```shell
+poetry export --without-hashes -o requirements.txt
+poetry export --without-hashes --with dev -o requirements-dev.txt
 ```

@@ -31,6 +31,7 @@ jobs:
       - name: Replace version
         run: |
           sed -i "s/__VERSION__ = '0.0.0'/__VERSION__ = '${{ env.VERSION }}'/" aoirint_psdlayer2dirpy/__init__.py
+          sed -i "s/version = "0.0.0"/version = "${{ env.VERSION }}"/" pyproject.toml
 
       - name: Build Package
         run: python3 setup.py sdist bdist_wheel

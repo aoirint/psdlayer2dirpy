@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "aoirint-psdlayer2dirpy"
+version = "0.0.0"
+repository = "https://github.com/aoirint/psdlayer2dirpy"
+description = "PSDファイルのレイヤー構造＋画像をディレクトリ構造＋PNGとしてダンプするスクリプト"
+authors = ["aoirint <aoirint@gmail.com>"]
+readme = "README.md"
+packages = [{include = "aoirint_psdlayer2dirpy"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+psd-tools = "^1.9.24"
+
+[tool.poetry.scripts]
+psdlayer2dir = "aoirint_psdlayer2dirpy.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
