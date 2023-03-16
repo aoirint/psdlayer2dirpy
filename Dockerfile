@@ -26,6 +26,7 @@ RUN <<EOF
     gosu user pip3 install --no-cache-dir -r /tmp/requirements.txt
 EOF
 
-ADD ./aoirint_psdlayer2dirpy /opt/aoirint_psdlayer2dirpy
+ADD ./aoirint_psdlayer2dirpy /opt/aoirint_psdlayer2dirpy/aoirint_psdlayer2dirpy
+ADD ./main.py /opt/aoirint_psdlayer2dirpy/main.py
 
 ENTRYPOINT [ "gosu", "user", "python3", "/opt/aoirint_psdlayer2dirpy/main.py" ]

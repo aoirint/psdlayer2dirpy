@@ -24,7 +24,7 @@ readme = "README.md"
 packages = [{include = "aoirint_psdlayer2dirpy"}]
 
 [tool.poetry.scripts]
-psdlayer2dir = "aoirint_psdlayer2dirpy.main:main"
+psdlayer2dir = "aoirint_psdlayer2dirpy.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.10,<3.12"

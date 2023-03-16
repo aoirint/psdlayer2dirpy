@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
+from . import __VERSION__ as VERSION
+
 from psd_tools import PSDImage
 from psd_tools.api.layers import Layer
 
@@ -88,6 +90,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("psd_file", type=str)
     parser.add_argument("-o", "--output", type=str, default="./")
+    parser.add_argument('--version', action='version', version=f'%(prog)s {VERSION}')
     args = parser.parse_args()
 
     psd_path = Path(args.psd_file)
@@ -97,7 +100,3 @@ def main() -> None:
         psd_path=psd_path,
         output_path=output_path,
     )
-
-
-if __name__ == "__main__":
-    main()
