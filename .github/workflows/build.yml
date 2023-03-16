@@ -150,7 +150,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}"
-          cp -r dist/* "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
+          cp -r dist/psdlayer2dir/* "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
 
       - name: Compress tar.gz
         if: startsWith(matrix.os, 'ubuntu-')
