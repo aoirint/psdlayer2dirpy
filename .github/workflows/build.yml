@@ -139,7 +139,7 @@ jobs:
 
       - name: Build Binary
         shell: bash
-        run: poetry run pyinstaller --name "psdlayer2dir" --onefile "aoirint_psdlayer2dirpy/main.py"
+        run: poetry run pyinstaller --name "psdlayer2dir" "aoirint_psdlayer2dirpy/main.py"
 
       - name: Set asset-basename
         id: asset-basename
