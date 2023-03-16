@@ -11,7 +11,7 @@ from psd_tools.api.layers import Layer
 from . import __VERSION__ as VERSION
 from .util.logging_utility import setup_logger
 
-logger = logging.Logger('psdlayer2dir')
+logger = logging.Logger("psdlayer2dir")
 
 
 @dataclass
@@ -67,24 +67,25 @@ def replace_unsafe_chars(layer_name: str) -> str:
 
 def psdlayer2dir(
     psd_path: Path,
-    output_path: Path,
+    output_dir: Path,
 ) -> None:
-    if output_path.exists():
-        raise Exception(f"Already exists: {output_path}")
+    if output_dir.exists():
+        raise Exception(f"Already exists: {output_dir}")
 
     psd = PSDImage.open(psd_path)
 
-    layer_paths = walk_layer_paths(psd)
+    layer_path_list = walk_layer_paths(psd)
+    logger.info(f"{len(layer_path_list)} layers found")
 
-    for layer_path in layer_paths:
+    for layer_path in layer_path_list:
         filtered_path = list(map(replace_unsafe_chars, layer_path.path))
         filtered_path[-1] += ".png"
 
         relative_save_path = Path(*filtered_path)
 
-        save_path = output_path / relative_save_path
+        save_path = output_dir / relative_save_path
         assert (
-            output_path in save_path.parents
+            output_dir in save_path.parents
         ), f"Unsafe layer name used. Unsafe destination: {save_path}"
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -128,9 +129,9 @@ def main() -> None:
     setup_logger(logger=logger, log_level=log_level, log_file=log_file)
 
     psd_path: Path = args.psd_file
-    output_path: Path = args.output
+    output_dir: Path = args.output_dir
 
     psdlayer2dir(
         psd_path=psd_path,
-        output_path=output_path,
+        output_dir=output_dir,
     )
