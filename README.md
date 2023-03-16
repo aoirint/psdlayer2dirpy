@@ -47,7 +47,7 @@ poetry env use python
 poetry install
 ```
 
-### Format codes
+### Format code
 
 ```shell
 poetry run pysen run lint format
