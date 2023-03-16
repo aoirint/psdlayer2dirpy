@@ -33,15 +33,15 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'poetry'
 
-      - name: Install Dependencies
-        shell: bash
-        run: poetry install
-
       - name: Replace Version
         shell: bash
         run: |
           sed -i "s/__VERSION__ = \"0.0.0\"/__VERSION__ = \"${{ env.VERSION }}\"/" aoirint_psdlayer2dirpy/__init__.py
           sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
+
+      - name: Install Dependencies
+        shell: bash
+        run: poetry install
 
       - name: Build and publish Package
         shell: bash
@@ -128,14 +128,14 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'poetry'
 
-      - name: Install Dependencies
-        run: poetry install
-
       - name: Replace Version
         shell: bash
         run: |
           ${{ matrix.sed }} -i "s/__VERSION__ = \"0.0.0\"/__VERSION__ = \"${{ env.VERSION }}\"/" aoirint_psdlayer2dirpy/__init__.py
           ${{ matrix.sed }} -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
+
+      - name: Install Dependencies
+        run: poetry install
 
       - name: Build Binary
         shell: bash
