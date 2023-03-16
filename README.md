@@ -7,6 +7,14 @@
 
 ## Usage
 
+## Binary
+
+Download from [Releases](https://github.com/aoirint/psdlayer2dirpy/releases).
+
+```
+./psdlayer2dir image.psd -o output/
+```
+
 ### PyPI
 
 ```shell
