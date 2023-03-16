@@ -34,7 +34,7 @@ jobs:
       - name: Replace version
         run: |
           sed -i "s/__VERSION__ = '0.0.0'/__VERSION__ = '${{ env.VERSION }}'/" aoirint_psdlayer2dirpy/__init__.py
-          sed -i "s/version = "0.0.0"/version = "${{ env.VERSION }}"/" pyproject.toml
+          sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
 
       - name: Build and publish Package
         run: poetry publish --build --username "__token__" --password "${{ secrets.PYPI_API_TOKEN }}"
@@ -58,7 +58,7 @@ jobs:
       - name: Replace version
         run: |
           sed -i "s/__VERSION__ = '0.0.0'/__VERSION__ = '${{ env.VERSION }}'/" aoirint_psdlayer2dirpy/__init__.py
-          sed -i "s/version = "0.0.0"/version = "${{ env.VERSION }}"/" pyproject.toml
+          sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/" pyproject.toml
 
       - name: Build and Deploy Docker image
         uses: docker/build-push-action@v3
