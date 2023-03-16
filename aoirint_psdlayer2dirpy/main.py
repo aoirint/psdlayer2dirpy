@@ -61,7 +61,7 @@ def replace_unsafe_chars(layer_name: str) -> str:
 def psdlayer2dir(
     psd_path: Path,
     output_path: Path,
-):
+) -> None:
     if output_path.exists():
         raise Exception(f"Already exists: {output_path}")
 
@@ -84,7 +84,7 @@ def psdlayer2dir(
         layer_path.layer.composite(viewport=psd.bbox).save(save_path)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("psd_file", type=str)
     parser.add_argument("-o", "--output", type=str, default="./")

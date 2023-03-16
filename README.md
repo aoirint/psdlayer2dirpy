@@ -39,6 +39,12 @@ poetry env use python
 poetry install
 ```
 
+## Format codes
+
+```shell
+poetry run pysen run lint format
+```
+
 ### Library management
 
 To dump `requirements*.txt`,
