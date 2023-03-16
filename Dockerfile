@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.3-labs
-ARG PYTHON_VERSION=3.11.2
+ARG PYTHON_VERSION=3.10.10
 FROM "python:${PYTHON_VERSION}"
 
 ARG DEBIAN_FRONTEND=noninteractive

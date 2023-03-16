@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.11.2'
+  PYTHON_VERSION: '3.10.10'
   IMAGE_NAME: aoirint/psdlayer2dirpy
   IMAGE_TAG: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || 'latest' }}
   VERSION: ${{ github.event.release.tag_name != '' && github.event.release.tag_name || '0.0.0' }}

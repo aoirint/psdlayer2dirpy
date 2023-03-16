@@ -31,8 +31,8 @@ This repository uses [Poetry](https://github.com/python-poetry/poetry).
 ### pyenv + Poetry
 
 ```shell
-env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.11.2
-pyenv local 3.11.2
+env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.10.10
+pyenv local 3.10.10
 
 poetry env remove python
 poetry env use python
