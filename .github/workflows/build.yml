@@ -148,17 +148,9 @@ jobs:
 
       - name: Create artifact directory
         shell: bash
-        run: mkdir -p "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}"
-
-      - name: Copy binary to artifact directory for Linux / macOS
-        if: startsWith(matrix.os, 'ubuntu-') || startsWith(matrix.os, 'macos-')
-        shell: bash
-        run: cp dist/psdlayer2dir "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
-
-      - name: Create artifact directory for Windows
-        if: startsWith(matrix.os, 'windows-')
-        shell: bash
-        run: cp dist/psdlayer2dir.exe "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
+        run: |
+          mkdir -p "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}"
+          cp -r dist/* "artifact/${{ steps.asset-basename.outputs.ASSET_BASENAME }}/"
 
       - name: Compress tar.gz
         if: startsWith(matrix.os, 'ubuntu-')
