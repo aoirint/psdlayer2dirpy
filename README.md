@@ -47,7 +47,6 @@ poetry run pysen run lint format
 
 ### Library management
 
-
 ```shell
 # Add dependency
 poetry add {package_name}
