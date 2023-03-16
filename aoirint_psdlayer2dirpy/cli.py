@@ -1,11 +1,11 @@
 import argparse
 import logging
 import os
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
+from PIL import Image
 from psd_tools import PSDImage
 from psd_tools.api.layers import Layer
 
@@ -16,41 +16,47 @@ logger = logging.Logger("psdlayer2dir")
 
 
 @dataclass
-class LayerPath:
+class PsdLeafLayer:
     layer: Layer
     path: List[str]
 
 
-def _walk_layer_paths(layer_path: LayerPath) -> List[LayerPath]:
+def _find_all_leaf_layers(
+    layer: Layer,
+    path: List[str],
+) -> List[PsdLeafLayer]:
     layer_paths = []
 
-    layer_path.layer.visible = True
-    if layer_path.layer.is_group():
-        for child_layer in layer_path.layer:
+    layer.visible = True
+    if layer.is_group():
+        for child_layer in layer:
             layer_paths.extend(
-                _walk_layer_paths(
-                    LayerPath(
-                        layer=child_layer,
-                        path=layer_path.path + [child_layer.name],
-                    )
+                _find_all_leaf_layers(
+                    layer=child_layer,
+                    path=path + [child_layer.name],
                 )
             )
     else:
-        layer_paths.append(layer_path)
+        layer_paths.append(
+            PsdLeafLayer(
+                layer=layer,
+                path=path,
+            )
+        )
 
     return layer_paths
 
 
-def walk_layer_paths(psd: PSDImage) -> List[LayerPath]:
+def find_all_leaf_layers(
+    psd: PSDImage,
+) -> List[PsdLeafLayer]:
     layer_paths = []
 
     for layer in psd:
         layer_paths.extend(
-            _walk_layer_paths(
-                LayerPath(
-                    layer=layer,
-                    path=[layer.name],
-                )
+            _find_all_leaf_layers(
+                layer=layer,
+                path=[layer.name],
             )
         )
 
@@ -111,15 +117,14 @@ def psdlayer2dir(
         raise Exception(f"Already exists: {output_dir}")
 
     psd = PSDImage.open(psd_path)
+    leaf_layer_list = find_all_leaf_layers(psd)
+    logger.info(f"{len(leaf_layer_list)} layers found")
 
-    layer_path_list = walk_layer_paths(psd)
-    logger.info(f"{len(layer_path_list)} layers found")
-
-    for layer_path in layer_path_list:
-        slashed_layer_name = "/".join(layer_path.path)
+    for leaf_layer in leaf_layer_list:
+        slashed_layer_name = "/".join(leaf_layer.path)
 
         filtered_path = list(
-            map(replace_unsafe_chars, map(replace_psdtool_chars, layer_path.path))
+            map(replace_unsafe_chars, map(replace_psdtool_chars, leaf_layer.path))
         )
         filtered_path[-1] += ".png"
 
@@ -133,8 +138,14 @@ def psdlayer2dir(
         ), f"Unsafe layer name used. Unsafe destination: {save_path}"
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        layer_path.layer.visible = True
-        layer_path.layer.composite(viewport=psd.bbox).save(save_path)
+        leaf_layer.layer.visible = True
+
+        pil_image = leaf_layer.layer.composite(viewport=psd.bbox)
+        assert (
+            pil_image is not Image
+        ), f"Runtime type of composited layer image is not PIL.Image. This is unexpected."
+
+        pil_image.save(save_path)
 
 
 def main() -> None:
@@ -165,7 +176,6 @@ def main() -> None:
         version=f"%(prog)s {VERSION}",
     )
     args = parser.parse_args()
-
     log_level: int = args.log_level
     log_file: str | None = args.log_file
 
