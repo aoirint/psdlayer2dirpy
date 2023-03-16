@@ -76,24 +76,17 @@ def replace_psdtool_chars(layer_name: str) -> str:
         layer_name = layer_name[1:]
 
     # 反転レイヤー指定
-    # :flipx:flipy のような複数指定を許容
-    while True:
-        match = re.search(r"^(.+):flip(xy|x|y)$", layer_name)  # 後ろから
+    if layer_name.endswith(":flipx"):
+        # layer_name = '(左右反転) ' + layer_name[1:]
+        layer_name = layer_name[:-6]
 
-        if match:
-            prefix = match.group(1)
-            # xy = match.group(2)
-            suffix = ""
-            # if xy == 'xy':
-            #   suffix += ' (上下左右反転)'
-            # if xy == 'x':
-            #   suffix += ' (左右反転)'
-            # if xy == 'y':
-            #   suffix += ' (上下反転)'
+    if layer_name.endswith(":flipy"):
+        # layer_name = '(上下反転) ' + layer_name[1:]
+        layer_name = layer_name[:-6]
 
-            layer_name = f"{prefix}{suffix}"
-        else:
-            break
+    if layer_name.endswith(":flipxy"):
+        # layer_name = '(上下左右反転) ' + layer_name[1:]
+        layer_name = layer_name[:-6]
 
     return layer_name
 
