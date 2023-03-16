@@ -78,6 +78,8 @@ def psdlayer2dir(
     logger.info(f"{len(layer_path_list)} layers found")
 
     for layer_path in layer_path_list:
+        slashed_layer_name = '/'.join(layer_path.path)
+
         filtered_path = list(map(replace_unsafe_chars, layer_path.path))
         filtered_path[-1] += ".png"
 
@@ -88,6 +90,8 @@ def psdlayer2dir(
             output_dir in save_path.parents
         ), f"Unsafe layer name used. Unsafe destination: {save_path}"
         save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        logger.info(f'Saving layer "{slashed_layer_name}" -> {save_path}')
 
         layer_path.layer.visible = True
         layer_path.layer.composite(viewport=psd.bbox).save(save_path)
