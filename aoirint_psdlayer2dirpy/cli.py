@@ -78,7 +78,7 @@ def psdlayer2dir(
     logger.info(f"{len(layer_path_list)} layers found")
 
     for layer_path in layer_path_list:
-        slashed_layer_name = '/'.join(layer_path.path)
+        slashed_layer_name = "/".join(layer_path.path)
 
         filtered_path = list(map(replace_unsafe_chars, layer_path.path))
         filtered_path[-1] += ".png"
